@@ -1,120 +1,68 @@
-# Starter Code - React + Express + PostgreSQL
+# CS261-final
 
-This is a starter project with a working user authentication system. It uses React (via Vite) for the frontend, Express for the backend API, and PostgreSQL for the database.
+Planned features and tasks
 
-## Getting Started
-
-### 1. Run the setup script
-
-After cloning the repo, run:
-
-```bash
-./setup.sh
-```
-
-The script is interactive — it will prompt you for a project name, description, and database credentials (each with sensible defaults), then handle the rest. See [What `setup.sh` does](#what-setupsh-does) below for details.
-
-> **Prerequisites:** `node`/`npm` and the `psql` client must be on your `PATH`. The script auto-detects how to connect to PostgreSQL on macOS (Homebrew), Linux/WSL (apt), and any setup with trust auth; on other platforms it falls back to prompting for a superuser password.
-
-### 2. Start the development servers
-
-You need **two terminals** running at the same time:
-
-**Terminal 1 — Express backend:**
-```bash
-npm run server-dev
-```
-
-**Terminal 2 — Vite frontend:**
-```bash
-npm run client-dev
-```
-
-### 3. Open the app
-
-Go to **http://localhost:3000** in your browser. This is the Express server, which serves the HTML page and loads the React app from the Vite dev server.
-
-Do **not** open the Vite URL (port 5173) directly. Always use the Express URL so that API calls and cookies work correctly.
-
-## What `setup.sh` does
-
-The script walks through the steps below. It's safe to re-run — the git rename is idempotent and it asks before overwriting an existing `.env`.
-
-1. **Sanity checks.** Verifies `psql` and `npm` are available; aborts early with a clear message if either is missing.
-2. **Renames the git remote.** Renames the cloned `origin` to `upstream` so you can later point `origin` at your own repo (`git remote add origin <your-repo-url>`). Skipped if `upstream` already exists or you're not in a git repo.
-3. **Prompts for project metadata.** Asks for a project name and description, defaulting to `starter-app` and the generic starter description.
-4. **Prompts for database config.** Asks for the DB user, password (hidden input), database name, host, and port — all with defaults.
-5. **Detects how to connect to PostgreSQL as a superuser.** Tries, in order: connecting as your current OS user (macOS Homebrew default), connecting as the `postgres` role without a password (trust auth), `sudo -u postgres psql` (Linux/WSL apt installs), and finally prompting you for a superuser name + password.
-6. **Updates `package.json`.** Writes the project name and description you entered using `node` (so JSON quoting is handled correctly).
-7. **Runs `npm install`.**
-8. **Creates the PostgreSQL user and database** using the superuser connection from step 5.
-9. **Writes `.env`** with `DATABASE_URL`, `PORT=3000`, and `VITE_ORIGIN=http://localhost:5173`.
-10. **Runs `npm run migrate`** to create the `users` and `sessions` tables.
-
-When you add your own migration files to `server/migrations/`, run `npm run migrate` again to apply them.
-
-## Manual setup
-
-If you can't run the script (e.g., on native Windows without WSL or Git Bash), do the equivalent manually:
-
-1. Run `npm install`.
-2. Open `psql` as your superuser and run:
-   ```sql
-   CREATE USER your_user WITH PASSWORD 'your_password';
-   CREATE DATABASE your_db WITH OWNER your_user;
-   ```
-3. Copy `.env.example` to `.env` and fill in the `DATABASE_URL`:
-   ```
-   DATABASE_URL=postgres://your_user:your_password@localhost:5432/your_db
-   PORT=3000
-   VITE_ORIGIN=http://localhost:5173
-   ```
-4. Run `npm run migrate`.
-5. (Optional) Edit `name` and `description` in `package.json`.
-6. (Optional) `git remote rename origin upstream` and add your own `origin`.
-
-## What's Included
-
-### Backend (`server/`)
-- `server.js` - Express app with middleware and route mounting
-- `db/connection.js` - PostgreSQL connection pool
-- `migrate.js` - Migration runner (reads SQL files from `migrations/`)
-- `migrations/` - SQL migration files (001_users.sql, 002_sessions.sql)
-- `controllers/auth.js` - Registration, login, logout, and current user endpoints
-- `models/users.js` - User and session database functions
-- `middleware/auth.js` - `loadUser` (attaches user to every request) and `requireAuth` (returns 401 if not logged in)
-
-### Frontend (`client/src/`)
-- `main.jsx` - React entry point with BrowserRouter and AuthProvider
-- `App.jsx` - Root component with routes
-- `contexts/AuthContext.jsx` - React context for global auth state (user, redirectUrl)
-- `hooks/useRequireUser.js` - Custom hook that returns the user or redirects to login
-- `components/Navbar.jsx` - Navigation bar
-- `pages/Login.jsx` - Login page
-- `pages/Register.jsx` - Registration page
-- `pages/Home.jsx` - Home page (requires login)
-
-## Auth API Endpoints
-
-These are already implemented and working:
-
-- `POST /api/auth/register` - Create account (sets session cookie)
-- `POST /api/auth/login` - Log in (sets session cookie)
-- `POST /api/auth/logout` - Log out (clears session cookie)
-- `GET /api/auth/me` - Get current logged-in user (or null)
-
-## Adding Your Own Code
-
-- **New migration files** go in `server/migrations/` (e.g. `003_polls.sql`). Run `npm run migrate` to apply them.
-- **New API routes** go in `server/controllers/`. Create a router file and mount it in `server.js`.
-- **New database functions** go in `server/models/`.
-- **New React pages** go in `client/src/pages/`. Add routes for them in `App.jsx`.
-- **New React components** go in `client/src/components/`.
-
-## Available Scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run server-dev` | Start the Express server with auto-restart on changes |
-| `npm run client-dev` | Start the Vite dev server for React |
-| `npm run migrate` | Run database migrations |
+1. Inventory management
+	- Inventory will be represented within a table that shows the name of the item, the quantity, the date it was added, and the current status of the item (for example, if it is a piece of equipment, it may have the status of "in use," "needs repair," or "available"). Supervisors may add and remove items, as well as changing the quantity and status of items. The inventory can be searched and filtered, updating as text is entered into the search box.
+	- Endpoints:
+		- `POST /api/inventory/` - Adds an item to the inventory database.
+		- `GET /api/inventory/` - Retrieves all entries in the inventory database.
+		- `GET /api/inventory/:id` - Retrieves a specific entry in the inventory database.
+		- `POST /api/inventory/:id` - Makes changes to a specific entry in the inventory database.
+	- React components/views:
+		- The full/filtered inventory will be shown in a React page using a table. 
+		- When viewing an individual entry, it will show a separate React page with only the information for that item. If a supervisor is logged in, they will have additional options to change the item details.
+		- When adding to the inventory, a React page will be shown with a form for all of the details to be added.
+- 2. Time/task tracking
+	- Both laborers and supervisors can clock in/out and enter the specific task they were working on, as well as take a break and switch tasks mid-shift. Supervisors can add/modify/delete tasks.
+	- Endpoints: 
+		- `POST /api/time` - Depending on the header content, this can start or end a timer, start a lunch break, or switch tasks.
+		- `GET /api/time` - Gets the current timer and task
+		- `POST /api/task` - Allows the supervisor to add or modify a task for time tracking
+		- `GET /api/task` - Gets all tasks currently active on the project
+	- React components/views:
+		- The timer itself will be its own React component that can be reused between multiple pages, such as a specific page for time tracking, as well as a home/at-a-glance page. It could also be shown on the navigation bar.
+		- The page for time/task tracking will be a React page, as well as the page for managing the active tasks.
+- 3. Project management
+	- Laborers and supervisors can see the tasks still needing to be completed on a project. They can also see the relevant details about the project, such as the name and site location. Supervisors can add tasks and change the details.
+	- Endpoints: 
+		- `GET /api/project` - Shows all the relevant details of the project.
+		- `POST /api/project` - Creates a new project and adds it to the database.
+		- `POST /api/project/:id` - Modifies the details of the specified project.
+		- `GET /api/project/:id` - Shows all the relevant details of the specified project.
+	- React components/views: 
+		- Certain aspects of the project details page may be individual React components--for example, if I have the time, I would like to implement a maps API to show the location on the map, which would be contained within its own React component.
+		- The entire page for creating a new project will be a React page.
+- Database tables (PSQL)
+	- 1. sessions - same as that in the starter code
+	- 2. laborers - same as the user table given in the starter code
+	- 3. supervisors - should be able to use the same schema as the laborers table
+	- 4. projects - contains the critical details for each project created
+		- id
+		- name (text up to 64 characters, not null)
+		- location (text, no limit, nullable)
+		- estimated_date_of_completion (date, nullable)
+		- created_at
+	- 5. tasks - contains the tasks stored for each project
+		- id
+		- project_id references project(id)
+		- completed (boolean)
+		- created_at
+	- 6. time - stores the amount of time tracked by each worker
+		- id
+		- user_id references user(id)
+		- project_id references project(id)
+		- task_id references task(id) (nullable?)
+		- started_at (timestamp, not null)
+		- ended_at (timestamp, not null)
+		- break_start (timestamp)
+		- break_end (timestamp)
+		- created_at
+	- 7. inventory - Stores the materials and equipment details
+		- id
+		- name (text up to 64 characters, not null)
+		- status (int) %% the integer value will be interpreted later as a status message %%
+		- quantity
+		- created_at
+- Other tasks:
+	- I will need to implement separate login pages for laborers and supervisors. This shouldn't be hard to do; it is simply a matter of figuring out how I want the endpoints to function, at which point the endpoints would look up or register users in the laborer database or supervisor database, depending on which endpoint is used. They should be able to share the same sessions database, however.

@@ -1,4 +1,4 @@
-# CS261-final
+# CS2610-final
 
 Planned features and tasks
 

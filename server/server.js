@@ -8,6 +8,10 @@ import { create } from "express-handlebars";
 import { loadUser } from "./middleware/auth.js";
 
 import authController from "./controllers/auth.js";
+import inventoryController from "./controllers/inventory.js";
+import timeController from "./controllers/time.js";
+import taskController from "./controllers/task.js";
+import projectController from "./controllers/project.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +33,10 @@ app.use(loadUser);
 
 // API Routes
 app.use("/api/auth", authController);
+app.use("/api/inventory", inventoryController);
+app.use("/api/time", timeController);
+app.use("/api/task", taskController);
+app.use("/api/project", projectController);
 
 // Serve the React app
 if (process.env.NODE_ENV === "production") {

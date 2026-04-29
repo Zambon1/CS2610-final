@@ -3,6 +3,7 @@ import {
   createUser,
   findByUsername,
   findByEmail,
+  findById,
   verifyPassword,
   createSession,
   deleteSession,
@@ -14,7 +15,7 @@ const router = express.Router();
 // POST /api/auth/register
 // Creates a new user account and logs them in by setting a session cookie.
 router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, isSupervisor = false } = req.body;
 
   if (!username || !email || !password) {
     return res
@@ -33,7 +34,7 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Email is already registered." });
     }
 
-    const user = await createUser(username, email, password);
+    const user = await createUser(username, email, password, Boolean(isSupervisor));
     const sessionId = await createSession(user.id);
 
     res.cookie("session_id", sessionId, {
@@ -42,7 +43,12 @@ router.post("/register", async (req, res) => {
     });
 
     res.status(201).json({
-      user: { id: user.id, username: user.username, email: user.email },
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        isSupervisor: user.is_supervisor,
+      },
     });
   } catch (err) {
     console.error("Registration error:", err);
@@ -80,7 +86,12 @@ router.post("/login", async (req, res) => {
     });
 
     res.json({
-      user: { id: user.id, username: user.username, email: user.email },
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        isSupervisor: user.is_supervisor,
+      },
     });
   } catch (err) {
     console.error("Login error:", err);
@@ -109,6 +120,23 @@ router.get("/me", (req, res) => {
     res.json({ user: req.user });
   } else {
     res.json({ user: null });
+  }
+});
+
+// GET /api/auth/users/:id
+// Returns a single user by id.
+router.get("/users/:id", requireAuth, async (req, res) => {
+  try {
+    const user = await findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    res.json({ user });
+  } catch (err) {
+    console.error("User lookup error:", err);
+    res.status(500).json({ error: "Server error." });
   }
 });
 

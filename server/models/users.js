@@ -4,11 +4,11 @@ import crypto from "crypto";
 
 const SALT_ROUNDS = 10;
 
-export async function createUser(username, email, password) {
+export async function createUser(username, email, password, isSupervisor = false) {
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
   const result = await pool.query(
-    "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email, created_at",
-    [username, email, passwordHash]
+    "INSERT INTO users (username, email, password_hash, is_supervisor) VALUES ($1, $2, $3, $4) RETURNING id, username, email, is_supervisor, created_at",
+    [username, email, passwordHash, isSupervisor]
   );
   return result.rows[0];
 }
@@ -29,7 +29,7 @@ export async function findByEmail(email) {
 
 export async function findById(id) {
   const result = await pool.query(
-    "SELECT id, username, email, created_at FROM users WHERE id = $1",
+    "SELECT id, username, email, is_supervisor, created_at FROM users WHERE id = $1",
     [id]
   );
   return result.rows[0] || null;
@@ -50,7 +50,7 @@ export async function createSession(userId) {
 
 export async function findSession(sessionId) {
   const result = await pool.query(
-    `SELECT sessions.*, users.id AS user_id, users.username, users.email
+    `SELECT sessions.*, users.id AS user_id, users.username, users.email, users.is_supervisor
      FROM sessions
      JOIN users ON sessions.user_id = users.id
      WHERE sessions.session_id = $1`,

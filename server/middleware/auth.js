@@ -18,6 +18,7 @@ export async function loadUser(req, res, next) {
         id: session.user_id,
         username: session.username,
         email: session.email,
+        isSupervisor: session.is_supervisor,
       };
     }
   } catch (err) {
@@ -34,5 +35,17 @@ export function requireAuth(req, res, next) {
   if (!req.user) {
     return res.status(401).json({ error: "You must be logged in." });
   }
+  next();
+}
+
+export function requireSupervisor(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: "You must be logged in." });
+  }
+
+  if (!req.user.isSupervisor) {
+    return res.status(403).json({ error: "You must be a supervisor." });
+  }
+
   next();
 }

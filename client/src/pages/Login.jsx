@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router";
+import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import AuthForm from "../components/AuthForm";
 
 function Login() {
   const { user, setUser, redirectUrl, setRedirectUrl } = useAuth();
@@ -41,38 +42,28 @@ function Login() {
   }
 
   return (
-    <div className="form-page">
-      <h2>Login</h2>
-      {error && <p className="error-message">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Login
-        </button>
-      </form>
-      <p>
-        Don't have an account? <Link to="/register">Register here</Link>
-      </p>
-    </div>
+    <AuthForm
+      title="Login"
+      submitLabel="Login"
+      accentLabel="Account access"
+      description="Sign in to access your account."
+      fields={[
+        { id: "username", label: "Username", type: "text" },
+        { id: "password", label: "Password", type: "password" },
+      ]}
+      values={{ username, password }}
+      setValue={(field, value) => {
+        if (field === "username") setUsername(value);
+        if (field === "password") setPassword(value);
+      }}
+      error={error}
+      onSubmit={handleSubmit}
+      footerText="Need an account?"
+      footerLinks={[
+        { to: "/register", label: "Laborer register" },
+        { to: "/supervisor-register", label: "Supervisor register" },
+      ]}
+    />
   );
 }
 

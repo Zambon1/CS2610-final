@@ -1,8 +1,7 @@
 CREATE TABLE IF NOT EXISTS inventory (
     id SERIAL PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
-    description TEXT,
     quantity INTEGER NOT NULL,
-    status INTEGER NOT NULL, -- 0 = available, 1 = in use, 2 = under maintenance
+    status VARCHAR(32) NOT NULL DEFAULT 'available',
     created_at TIMESTAMP DEFAULT NOW()
 );

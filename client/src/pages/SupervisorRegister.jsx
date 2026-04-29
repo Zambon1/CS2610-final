@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import AuthForm from "../components/AuthForm";
 
-function Register() {
+function SupervisorRegister() {
   const { user, setUser, redirectUrl, setRedirectUrl } = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -11,7 +11,6 @@ function Register() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // If the user is already logged in, redirect them
   if (user) {
     navigate("/", { replace: true });
     return null;
@@ -24,7 +23,7 @@ function Register() {
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password, isSupervisor: false }),
+      body: JSON.stringify({ username, email, password, isSupervisor: true }),
     });
 
     const data = await res.json();
@@ -35,7 +34,6 @@ function Register() {
     }
 
     setUser(data.user);
-
     const destination = redirectUrl || "/";
     setRedirectUrl("/");
     navigate(destination);
@@ -43,10 +41,10 @@ function Register() {
 
   return (
     <AuthForm
-      title="Create user account"
-      submitLabel="Register"
-      accentLabel="Laborer access"
-      description="Create a laborer account for viewing the app and inventory."
+      title="Create supervisor account"
+      submitLabel="Register as supervisor"
+      accentLabel="Supervisor access"
+      description="Create an account with inventory management permissions."
       fields={[
         { id: "username", label: "Username", type: "text" },
         { id: "email", label: "Email", type: "email" },
@@ -60,11 +58,11 @@ function Register() {
       }}
       error={error}
       onSubmit={handleSubmit}
-      footerText="Already have a laborer account?"
+      footerText="Already have a supervisor account?"
       footerLinkTo="/login"
       footerLinkLabel="Login here"
     />
   );
 }
 
-export default Register;
+export default SupervisorRegister;
